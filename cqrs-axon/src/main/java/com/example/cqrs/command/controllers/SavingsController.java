@@ -2,13 +2,19 @@ package com.example.cqrs.command.controllers;
 
 import com.example.cqrs.api.commands.SavingsCommands.DepositCommand;
 import com.example.cqrs.api.commands.SavingsCommands.WithdrawCommand;
+import com.example.cqrs.command.services.GeneratorService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.springframework.boot.json.GsonJsonParser;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +25,6 @@ import com.example.cqrs.api.commands.SavingsCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestHeader;
-import com.example.cqrs.command.services.generatorService;
 
 @RestController
 @RequestMapping("/api/command/savings")
@@ -27,11 +32,13 @@ import com.example.cqrs.command.services.generatorService;
 public class SavingsController {
 
     private final CommandGateway commandGateway;
+    private final GeneratorService generatorService;
     private static final Logger logger = LoggerFactory.getLogger(SavingsController.class);
 
 
-    public SavingsController(CommandGateway commandGateway) {
+    public SavingsController(CommandGateway commandGateway, GeneratorService generatorService) {
         this.commandGateway = commandGateway;
+        this.generatorService = generatorService;
     }
 
     public record MoneyRequest(
@@ -62,26 +69,26 @@ public class SavingsController {
     @PostMapping("/create")
     public ResponseEntity<String> createAccount(
             @RequestBody CreateAccountRequest request,
-            @RequestHeader(value = "x-request-id") String requestId) {
+            @RequestHeader(value = "x-request-id") String requestId) throws JsonProcessingException {
         logger.info("[COMMAND:CreateAccount] Received: {}", request);
-        commandGateway.sendAndWait(new SavingsCommands.CreateAccountCommand(
-            request.getClientId(),
-            request.getInitialBalance(),
-            request.getCreationDate(),
-            request.getStatus(),
-            requestId
+        String generatedAccountNumber = generatorService.generateAccountNumber();
+        Object result = commandGateway.sendAndWait(new SavingsCommands.CreateAccountCommand(
+                request.getClientId(),
+                generatedAccountNumber,
+                request.getInitialBalance(),
+                request.getCreationDate(),
+                request.getStatus(),
+                requestId
         ));
-        return ResponseEntity.accepted().body(requestId);
+        Map<String , String> response = Map.of("requestId", requestId, "accountNumber", generatedAccountNumber);
+        return ResponseEntity.accepted().body(new ObjectMapper().writeValueAsString(response));
     }
 
     public static class CreateAccountRequest {
-        private String accountNumber;
         private String clientId;
         private java.math.BigDecimal initialBalance;
         private java.time.LocalDate creationDate;
         private String status;
-        public String getAccountNumber() { return accountNumber; }
-        public void setAccountNumber(String accountNumber) { this.accountNumber = accountNumber; }
         public String getClientId() { return clientId; }
         public void setClientId(String clientId) { this.clientId = clientId; }
         public java.math.BigDecimal getInitialBalance() { return initialBalance; }

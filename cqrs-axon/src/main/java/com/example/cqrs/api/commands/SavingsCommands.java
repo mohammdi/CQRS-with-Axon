@@ -8,13 +8,16 @@ import org.axonframework.modelling.command.TargetAggregateIdentifier;
 public class SavingsCommands {
 
     public static class CreateAccountCommand {
+        @TargetAggregateIdentifier
+        private final String accountNumber;
         private final String clientId;
         private final java.math.BigDecimal initialBalance;
         private final java.time.LocalDate creationDate;
         private final String status;
         private final String requestId;
-        public CreateAccountCommand(String clientId, java.math.BigDecimal initialBalance, java.time.LocalDate creationDate, String status, String requestId) {
+        public CreateAccountCommand(String clientId, String accountNumber, java.math.BigDecimal initialBalance, java.time.LocalDate creationDate, String status, String requestId) {
             this.clientId = clientId;
+            this.accountNumber = accountNumber;
             this.initialBalance = initialBalance;
             this.creationDate = creationDate;
             this.status = status;
@@ -25,6 +28,12 @@ public class SavingsCommands {
         public java.time.LocalDate getCreationDate() { return creationDate; }
         public String getStatus() { return status; }
         public String getRequestId() { return requestId; }
+
+        public String getAccountNumber() {
+            return accountNumber;
+        }
+
+
         @Override
         public String toString() {
             return "CreateAccountCommand{" +

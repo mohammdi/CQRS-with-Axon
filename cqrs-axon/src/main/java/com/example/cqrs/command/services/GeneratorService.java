@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 @Service
-public class generatorService {
+public class GeneratorService {
     public String generateReferenceNumber() {
         return UUID.randomUUID().toString();
     }

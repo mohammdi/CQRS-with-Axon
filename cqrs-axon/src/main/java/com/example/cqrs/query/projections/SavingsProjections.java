@@ -3,7 +3,7 @@ package com.example.cqrs.query.projections;
 import com.example.cqrs.api.events.SavingsEvents.AccountCreatedEvent;
 import com.example.cqrs.api.events.SavingsEvents.DepositedEvent;
 import com.example.cqrs.api.events.SavingsEvents.WithdrawnEvent;
-import com.example.cqrs.command.services.generatorService;
+import com.example.cqrs.command.services.GeneratorService;
 import com.example.cqrs.domain.SavingsAccount;
 import com.example.cqrs.domain.SavingsTransaction;
 import com.example.cqrs.query.repositories.SavingsAccountRepository;
@@ -19,11 +19,11 @@ public class SavingsProjections {
 
     private final SavingsAccountRepository accountRepository;
     private final SavingsTransactionRepository txRepository;
-    private final generatorService generatorService;
+    private final GeneratorService generatorService;
 
     public SavingsProjections(SavingsAccountRepository accountRepository,
                               SavingsTransactionRepository txRepository,
-                              generatorService generatorService) {
+                              GeneratorService generatorService) {
         this.accountRepository = accountRepository;
         this.txRepository = txRepository;
         this.generatorService = generatorService;

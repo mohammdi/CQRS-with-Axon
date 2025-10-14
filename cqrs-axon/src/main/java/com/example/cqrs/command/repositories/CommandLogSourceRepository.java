@@ -6,4 +6,5 @@ import java.util.Optional;
 
 public interface CommandLogSourceRepository extends JpaRepository<CommandLogSource, Long> {
     Optional<CommandLogSource> findByRequestId(String requestId);
+    Optional<CommandLogSource> findByRequestIdAndCommandName(String requestId, String commandName);
 }

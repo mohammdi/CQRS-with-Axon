@@ -6,13 +6,15 @@ import java.time.Instant;
 public class SavingsEvents {
 
     public static class AccountCreatedEvent {
+        public final String accountNumber;
         public final String clientId;
         public final BigDecimal initialBalance;
         public final Instant creationDate;
         public final String status;
 
-        public AccountCreatedEvent(String clientId, BigDecimal initialBalance, Instant creationDate, String status) {
+        public AccountCreatedEvent(String clientId, String accountNumber, BigDecimal initialBalance, Instant creationDate, String status) {
             this.clientId = clientId;
+            this.accountNumber = accountNumber;
             this.initialBalance = initialBalance;
             this.creationDate = creationDate;
             this.status = status;

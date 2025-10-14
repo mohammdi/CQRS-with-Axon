@@ -1,21 +1,20 @@
-package com.example.cqrs.command;
+package com.example.cqrs.command.handlers;
 
 import static org.axonframework.modelling.command.AggregateLifecycle.apply;
 
-import com.example.cqrs.api.commands.SavingsCommands;
-import com.example.cqrs.api.commands.SavingsCommands.DepositCommand;
-import com.example.cqrs.api.commands.SavingsCommands.WithdrawCommand;
+import com.example.cqrs.api.commands.SavingsCommands.*;
 import com.example.cqrs.api.events.SavingsEvents.AccountCreatedEvent;
 import com.example.cqrs.api.events.SavingsEvents.DepositedEvent;
 import com.example.cqrs.api.events.SavingsEvents.WithdrawnEvent;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
+
+import com.example.cqrs.command.services.GeneratorService;
+import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.axonframework.commandhandling.CommandHandler;
-import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.spring.stereotype.Aggregate;
 
@@ -29,18 +28,17 @@ public class SavingsAccountAggregate {
     private Instant activationTime;
 
     private static final Logger logger = LoggerFactory.getLogger(SavingsAccountAggregate.class);
-
-    protected SavingsAccountAggregate() {}
+    protected SavingsAccountAggregate(){}
 
     @CommandHandler
-    public SavingsAccountAggregate(SavingsCommands.CreateAccountCommand cmd) {
+    public void handle(CreateAccountCommand cmd) {
         logger.info("[COMMAND:CreateAccount] Handling command: {}", cmd);
         if (cmd.getInitialBalance() == null || cmd.getInitialBalance().compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Initial balance must be non-negative");
         }
         logger.info("[EVENT:AccountCreated] Publishing event: clientId={}, initialBalance={}, creationDate={}, status={},  requestNumber={}", cmd.getClientId(), cmd.getInitialBalance(), cmd.getCreationDate(), cmd.getStatus(), cmd.getRequestId());
         apply(new AccountCreatedEvent(
-            cmd.getClientId(),
+            cmd.getClientId(), cmd.getAccountNumber(),
             cmd.getInitialBalance(),
             cmd.getCreationDate().atStartOfDay(ZoneId.systemDefault()).toInstant(),
             cmd.getStatus()
@@ -73,13 +71,13 @@ public class SavingsAccountAggregate {
         logger.info("[EVENT:Withdrawn] Publishing event: accountNumber={}, amount={}, newBalance={}, requestNumber={}", accountNumber, cmd.amount, newBalance, cmd.requestId);
         apply(new WithdrawnEvent(accountNumber, cmd.amount, cmd.requestId, newBalance, Instant.now()));
     }
-
-/*    @EventSourcingHandler
+    @EventSourcingHandler
     public void on(AccountCreatedEvent evt) {
         logger.info("[EVENT:AccountCreated] Sourced Event: {}", evt);
-        this.accountNumber = evt.;
         this.balance = evt.initialBalance;
+        this.accountNumber = evt.accountNumber;
         this.active = "ACTIVE".equalsIgnoreCase(evt.status);
+        this.activationTime = Instant.now();
     }
 
     @EventSourcingHandler
@@ -92,7 +90,7 @@ public class SavingsAccountAggregate {
     public void on(WithdrawnEvent evt) {
         logger.info("[EVENT:Withdrawn] Sourced Event: {}", evt);
         this.balance = evt.newBalance;
-    }*/
+    }
 
     private void requireActive() {
         if (!active) throw new IllegalStateException("Account is not active");
