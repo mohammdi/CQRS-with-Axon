@@ -10,8 +10,6 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.boot.json.GsonJsonParser;
@@ -67,21 +65,21 @@ public class SavingsController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<String> createAccount(
+    public ResponseEntity<?> createAccount(
             @RequestBody CreateAccountRequest request,
-            @RequestHeader(value = "x-request-id") String requestId) throws JsonProcessingException {
+            @RequestHeader(value = "x-request-id") String requestId) {
         logger.info("[COMMAND:CreateAccount] Received: {}", request);
-        String generatedAccountNumber = generatorService.generateAccountNumber();
-        Object result = commandGateway.sendAndWait(new SavingsCommands.CreateAccountCommand(
-                request.getClientId(),
-                generatedAccountNumber,
-                request.getInitialBalance(),
-                request.getCreationDate(),
-                request.getStatus(),
-                requestId
+        String accountNumber =generatorService.generateAccountNumber();
+        commandGateway.sendAndWait(new SavingsCommands.CreateAccountCommand(
+            accountNumber,
+            request.getClientId(),
+            request.getInitialBalance(),
+            request.getCreationDate(),
+            request.getStatus(),
+            requestId
         ));
-        Map<String , String> response = Map.of("requestId", requestId, "accountNumber", generatedAccountNumber);
-        return ResponseEntity.accepted().body(new ObjectMapper().writeValueAsString(response));
+        var dto = new AccountCreateResultDto(accountNumber, requestId);
+        return ResponseEntity.accepted().body(dto);
     }
 
     public static class CreateAccountRequest {
@@ -97,6 +95,15 @@ public class SavingsController {
         public void setCreationDate(java.time.LocalDate creationDate) { this.creationDate = creationDate; }
         public String getStatus() { return status; }
         public void setStatus(String status) { this.status = status; }
+    }
+
+    public static class AccountCreateResultDto {
+        public final String accountNumber;
+        public final String requestId;
+        public AccountCreateResultDto(String accountNumber, String requestId) {
+            this.accountNumber = accountNumber;
+            this.requestId = requestId;
+        }
     }
 }
 

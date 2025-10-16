@@ -15,28 +15,24 @@ public class SavingsCommands {
         private final java.time.LocalDate creationDate;
         private final String status;
         private final String requestId;
-        public CreateAccountCommand(String clientId, String accountNumber, java.math.BigDecimal initialBalance, java.time.LocalDate creationDate, String status, String requestId) {
-            this.clientId = clientId;
+        public CreateAccountCommand(String accountNumber, String clientId, java.math.BigDecimal initialBalance, java.time.LocalDate creationDate, String status, String requestId) {
             this.accountNumber = accountNumber;
+            this.clientId = clientId;
             this.initialBalance = initialBalance;
             this.creationDate = creationDate;
             this.status = status;
             this.requestId = requestId;
         }
+        public String getAccountNumber() { return accountNumber; }
         public String getClientId() { return clientId; }
         public java.math.BigDecimal getInitialBalance() { return initialBalance; }
         public java.time.LocalDate getCreationDate() { return creationDate; }
         public String getStatus() { return status; }
         public String getRequestId() { return requestId; }
-
-        public String getAccountNumber() {
-            return accountNumber;
-        }
-
-
         @Override
         public String toString() {
             return "CreateAccountCommand{" +
+                    "accountNumber='" + accountNumber + '\'' +
                     ", clientId='" + clientId + '\'' +
                     ", initialBalance=" + initialBalance +
                     ", creationDate=" + creationDate +

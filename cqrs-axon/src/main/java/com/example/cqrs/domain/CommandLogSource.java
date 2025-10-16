@@ -12,7 +12,7 @@ public class CommandLogSource {
     @Column(name = "command_name", nullable = false, length = 100)
     private String commandName;
 
-    @Column(name = "account_number", nullable = false, length = 64)
+    @Column(name = "account_number", length = 64)
     private String accountNumber;
 
     @Column(name = "request_id", nullable = false, length = 100)

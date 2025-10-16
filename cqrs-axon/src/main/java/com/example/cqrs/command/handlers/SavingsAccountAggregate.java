@@ -10,7 +10,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 
-import com.example.cqrs.command.services.GeneratorService;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,17 +30,18 @@ public class SavingsAccountAggregate {
     protected SavingsAccountAggregate(){}
 
     @CommandHandler
-    public void handle(CreateAccountCommand cmd) {
-        logger.info("[COMMAND:CreateAccount] Handling command: {}", cmd);
+    public SavingsAccountAggregate(CreateAccountCommand cmd) {
+        logger.info("[COMMAND:CreateAccount] Handling command: {}", cmd.toString());
         if (cmd.getInitialBalance() == null || cmd.getInitialBalance().compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Initial balance must be non-negative");
         }
         logger.info("[EVENT:AccountCreated] Publishing event: clientId={}, initialBalance={}, creationDate={}, status={},  requestNumber={}", cmd.getClientId(), cmd.getInitialBalance(), cmd.getCreationDate(), cmd.getStatus(), cmd.getRequestId());
         apply(new AccountCreatedEvent(
-            cmd.getClientId(), cmd.getAccountNumber(),
+            cmd.getAccountNumber(), cmd.getClientId(),
             cmd.getInitialBalance(),
             cmd.getCreationDate().atStartOfDay(ZoneId.systemDefault()).toInstant(),
-            cmd.getStatus()
+            cmd.getStatus(),
+            cmd.getRequestId()
         ));
     }
 

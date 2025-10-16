@@ -11,13 +11,15 @@ public class SavingsEvents {
         public final BigDecimal initialBalance;
         public final Instant creationDate;
         public final String status;
+        public final String requestNumber;
 
-        public AccountCreatedEvent(String clientId, String accountNumber, BigDecimal initialBalance, Instant creationDate, String status) {
-            this.clientId = clientId;
+        public AccountCreatedEvent(String accountNumber, String clientId, BigDecimal initialBalance, Instant creationDate, String status, String requestNumber) {
             this.accountNumber = accountNumber;
+            this.clientId = clientId;
             this.initialBalance = initialBalance;
             this.creationDate = creationDate;
             this.status = status;
+            this.requestNumber = requestNumber;
         }
 
         @Override

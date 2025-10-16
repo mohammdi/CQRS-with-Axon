@@ -32,7 +32,7 @@ public class SavingsProjections {
     @EventHandler
     public void on(AccountCreatedEvent evt) {
         SavingsAccount acc = new SavingsAccount();
-        acc.setAccountNumber(generatorService.generateAccountNumber());
+        acc.setAccountNumber(evt.accountNumber);
         acc.setClientId(evt.clientId);
         acc.setActivationDate(Objects.requireNonNullElseGet(evt.creationDate, Instant::now));
         acc.setStatus(SavingsAccount.Status.ACTIVE);
