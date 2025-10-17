@@ -41,8 +41,7 @@ public class SavingsController {
 
     public record MoneyRequest(
             @NotBlank String accountNumber,
-            @NotNull @DecimalMin(value = "0.01") BigDecimal amount,
-            String requestNumber
+            @NotNull @DecimalMin(value = "0.01") BigDecimal amount
     ) {}
 
     @PostMapping("/deposit")
